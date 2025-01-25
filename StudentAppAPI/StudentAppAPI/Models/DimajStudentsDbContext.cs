@@ -28,7 +28,7 @@ public partial class DimajStudentsDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
+       => optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,11 +38,11 @@ public partial class DimajStudentsDbContext : DbContext
 
             entity.ToTable("Advisement");
 
-            entity.Property(e => e.Id).HasMaxLength(30);
-            entity.Property(e => e.CourseId).HasMaxLength(30);
+            entity.Property(e => e.Id).HasMaxLength(50);
+            entity.Property(e => e.CourseId).HasMaxLength(50);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.StudentId).HasMaxLength(30);
+            entity.Property(e => e.StudentId).HasMaxLength(50);
 
             entity.HasOne(d => d.Course).WithMany(p => p.Advisements)
                 .HasForeignKey(d => d.CourseId)
@@ -59,12 +59,12 @@ public partial class DimajStudentsDbContext : DbContext
 
             entity.ToTable("Appointment");
 
-            entity.Property(e => e.Id).HasMaxLength(30);
-            entity.Property(e => e.CourseId).HasMaxLength(30);
+            entity.Property(e => e.Id).HasMaxLength(50);
+            entity.Property(e => e.CourseId).HasMaxLength(50);
             entity.Property(e => e.Date).HasColumnType("datetime");
             entity.Property(e => e.Mode).HasMaxLength(20);
             entity.Property(e => e.Status).HasMaxLength(20);
-            entity.Property(e => e.StudentId).HasMaxLength(30);
+            entity.Property(e => e.StudentId).HasMaxLength(50);
 
             entity.HasOne(d => d.Course).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.CourseId)
@@ -79,10 +79,10 @@ public partial class DimajStudentsDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__CommentN__3214EC07B3496E6B");
 
-            entity.Property(e => e.Id).HasMaxLength(30);
-            entity.Property(e => e.AuthorId).HasMaxLength(30);
+            entity.Property(e => e.Id).HasMaxLength(50);
+            entity.Property(e => e.AuthorId).HasMaxLength(50);
             entity.Property(e => e.Date).HasColumnType("datetime");
-            entity.Property(e => e.PieceOfNewsId).HasMaxLength(30);
+            entity.Property(e => e.PieceOfNewsId).HasMaxLength(50);
 
             entity.HasOne(d => d.Author).WithMany(p => p.CommentNews)
                 .HasForeignKey(d => d.AuthorId)
@@ -90,7 +90,6 @@ public partial class DimajStudentsDbContext : DbContext
 
             entity.HasOne(d => d.PieceOfNews).WithMany(p => p.CommentNews)
                 .HasForeignKey(d => d.PieceOfNewsId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_CommentNews_PieceOfNews");
         });
 
@@ -102,10 +101,10 @@ public partial class DimajStudentsDbContext : DbContext
 
             entity.HasIndex(e => e.Code, "UQ__Course__A25C5AA75E7DB04D").IsUnique();
 
-            entity.Property(e => e.Id).HasMaxLength(30);
-            entity.Property(e => e.Code).HasMaxLength(30);
+            entity.Property(e => e.Id).HasMaxLength(50);
+            entity.Property(e => e.Code).HasMaxLength(50);
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.ProfessorId).HasMaxLength(30);
+            entity.Property(e => e.ProfessorId).HasMaxLength(50);
             entity.Property(e => e.Semester).HasMaxLength(20);
 
             entity.HasOne(d => d.Professor).WithMany(p => p.Courses)
@@ -117,8 +116,8 @@ public partial class DimajStudentsDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__PieceOfN__3214EC0727785666");
 
-            entity.Property(e => e.Id).HasMaxLength(30);
-            entity.Property(e => e.AuthorId).HasMaxLength(30);
+            entity.Property(e => e.Id).HasMaxLength(50);
+            entity.Property(e => e.AuthorId).HasMaxLength(50);
             entity.Property(e => e.Title).HasMaxLength(200);
 
             entity.HasOne(d => d.Author).WithMany(p => p.PieceOfNews)
@@ -132,10 +131,10 @@ public partial class DimajStudentsDbContext : DbContext
 
             entity.ToTable("ResponseAdvisement");
 
-            entity.Property(e => e.Id).HasMaxLength(30);
-            entity.Property(e => e.AdvisementId).HasMaxLength(30);
+            entity.Property(e => e.Id).HasMaxLength(50);
+            entity.Property(e => e.AdvisementId).HasMaxLength(50);
             entity.Property(e => e.Date).HasColumnType("datetime");
-            entity.Property(e => e.UserId).HasMaxLength(30);
+            entity.Property(e => e.UserId).HasMaxLength(50);
 
             entity.HasOne(d => d.Advisement).WithMany(p => p.ResponseAdvisements)
                 .HasForeignKey(d => d.AdvisementId)
@@ -152,7 +151,7 @@ public partial class DimajStudentsDbContext : DbContext
 
             entity.ToTable("User");
 
-            entity.Property(e => e.Id).HasMaxLength(30);
+            entity.Property(e => e.Id).HasMaxLength(50);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);

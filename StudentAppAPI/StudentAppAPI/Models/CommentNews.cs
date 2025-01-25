@@ -7,7 +7,7 @@ public partial class CommentNews
 {
     public string Id { get; set; } = null!;
 
-    public string PieceOfNewsId { get; set; } = null!;
+    public string? PieceOfNewsId { get; set; }
 
     public string? AuthorId { get; set; }
 
@@ -17,5 +17,5 @@ public partial class CommentNews
 
     public virtual User? Author { get; set; }
 
-    public virtual PieceOfNews PieceOfNews { get; set; } = null!;
+    public virtual PieceOfNews? PieceOfNews { get; set; }
 }
