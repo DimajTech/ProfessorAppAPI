@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace StudentAppAPI.Models;
 
@@ -19,8 +20,10 @@ public partial class Course
 
     public bool? IsActive { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<Advisement> Advisements { get; set; } = new List<Advisement>();
 
+    [JsonIgnore]
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
     public virtual User? Professor { get; set; }
