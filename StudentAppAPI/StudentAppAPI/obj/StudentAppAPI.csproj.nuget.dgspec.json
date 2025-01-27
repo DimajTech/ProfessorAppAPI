@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Esteban\\Documents\\UCR\\Tercer año\\III Semestre\\Lenguajes para Aplicaciones Comerciales\\Proyecto\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI.csproj": {}
+    "C:\\Users\\daniv\\source\\repos\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Esteban\\Documents\\UCR\\Tercer año\\III Semestre\\Lenguajes para Aplicaciones Comerciales\\Proyecto\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI.csproj": {
+    "C:\\Users\\daniv\\source\\repos\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Esteban\\Documents\\UCR\\Tercer año\\III Semestre\\Lenguajes para Aplicaciones Comerciales\\Proyecto\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI.csproj",
+        "projectUniqueName": "C:\\Users\\daniv\\source\\repos\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI.csproj",
         "projectName": "StudentAppAPI",
-        "projectPath": "C:\\Users\\Esteban\\Documents\\UCR\\Tercer año\\III Semestre\\Lenguajes para Aplicaciones Comerciales\\Proyecto\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI.csproj",
-        "packagesPath": "C:\\Users\\Esteban\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Esteban\\Documents\\UCR\\Tercer año\\III Semestre\\Lenguajes para Aplicaciones Comerciales\\Proyecto\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\obj\\",
+        "projectPath": "C:\\Users\\daniv\\source\\repos\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI.csproj",
+        "packagesPath": "C:\\Users\\daniv\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\daniv\\source\\repos\\StudentAppAPI\\StudentAppAPI\\StudentAppAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Esteban\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\daniv\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

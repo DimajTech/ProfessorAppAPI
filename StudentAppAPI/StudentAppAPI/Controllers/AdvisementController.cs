@@ -19,16 +19,6 @@ namespace StudentAppAPI.Controllers
             _context = context;
         }
 
-        // GET: api/<AdvisementController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-
-
-
-            return new string[] { "value1", "value2" };
-        }
-
         // GET: api/Advisement/GetAdvisements
         [HttpGet]
         [Route("[action]")]
@@ -73,7 +63,7 @@ namespace StudentAppAPI.Controllers
         [Route("[action]/{id}")]
         public async Task<IActionResult> PutAdvisement(string id, Advisement updatedAdvisement)
         {
-            if (id != updatedAdvisement.Id)
+            if (id != updatedAdvisement.Id) 
             {
                 return BadRequest(new { Message = "Advisement ID mismatch" });
             }
@@ -113,18 +103,17 @@ namespace StudentAppAPI.Controllers
         // POST: api/Advisement/PostAdvisement
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<Advisement>> PostAdvisement(Advisement newAdvisement)
+        public async Task<ActionResult<Advisement>> PostAdvisement(Advisement advisement)
         {
-            var advisement = new Advisement
-            {
-                Id = Guid.NewGuid().ToString(),
-                Content = newAdvisement.Content,
-                Status = newAdvisement.Status,
-                IsPublic = newAdvisement.IsPublic,
-                CreatedAt = DateTime.UtcNow,
-                CourseId = newAdvisement.CourseId,
-                StudentId = newAdvisement.StudentId
-            };
+
+            var advisementId = Guid.NewGuid().ToString();
+
+            advisement.Id = advisementId;
+
+            DateTime createdAt = DateTime.UtcNow;
+
+            advisement.CreatedAt = createdAt;
+
 
             _context.Advisements.Add(advisement);
             await _context.SaveChangesAsync();
