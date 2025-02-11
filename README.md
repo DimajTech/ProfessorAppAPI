@@ -1,1 +1,1 @@
-# StudentAppAPI
+# ProfessorAppAPI
