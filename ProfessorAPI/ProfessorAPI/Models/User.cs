@@ -31,7 +31,17 @@ public partial class User
     public string? Role { get; set; }
 
     [JsonIgnore]
+    public virtual ICollection<Advisement> Advisements { get; set; } = new List<Advisement>();
+    [JsonIgnore]
+    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    [JsonIgnore]
+    public virtual ICollection<CommentNews> CommentNews { get; set; } = new List<CommentNews>();
+    [JsonIgnore]
     public virtual ICollection<CommentNewsResponse> CommentNewsResponses { get; set; } = new List<CommentNewsResponse>();
     [JsonIgnore]
+    public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+    [JsonIgnore]
     public virtual ICollection<PieceOfNews> PieceOfNews { get; set; } = new List<PieceOfNews>();
+    [JsonIgnore]
+    public virtual ICollection<ResponseAdvisement> ResponseAdvisements { get; set; } = new List<ResponseAdvisement>();
 }

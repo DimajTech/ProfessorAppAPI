@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProfessorAPI.Models;
@@ -69,33 +70,28 @@ namespace ProfessorAPI.Controllers
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        // PUT: api/User/PutUser
-        [HttpPut]
+        // PATCH: api/User/PatchUser
+        [HttpPatch]
         [Route("[action]/{id}")]
-        public async Task<IActionResult> PutUser(string id, User user)
+        public async Task<IActionResult> PatchUser(string id, [FromBody] JsonPatchDocument<User> patchDoc)
         {
-            if (id != user.Id)
+            if (patchDoc == null)
             {
                 return BadRequest();
             }
 
-            var userToUpdate = new User
+            var userToUpdate = await _context.Users.FindAsync(id);
+            if (userToUpdate == null)
             {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Picture = user.Picture,
-                Description = user.Description,
-                LinkedIn = user.LinkedIn,
-                ProfessionalBackground = user.ProfessionalBackground,
-                Password = user.Password,
-                IsActive = user.IsActive,
-                CreatedAt = user.CreatedAt,
-                RegistrationStatus = user.RegistrationStatus,
-                Role = user.Role
-            };
+                return NotFound();
+            }
 
-            _context.Entry(userToUpdate).State = EntityState.Modified;
+            patchDoc.ApplyTo(userToUpdate, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             try
             {
@@ -121,24 +117,36 @@ namespace ProfessorAPI.Controllers
         [Route("[action]/{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            try
             {
-                return NotFound();
-            }
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
 
-            if (user.IsActive == false)
+                if (user.IsActive == false)
+                {
+                    return Ok("El usuario ya está inactivo.");
+                }
+
+                user.IsActive = false;
+                _context.Entry(user).Property(u => u.IsActive).IsModified = true;
+
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex) when (ex is DbUpdateConcurrencyException || ex is DbUpdateException)
             {
-                return BadRequest("El usuario ya está inactivo.");
+                return StatusCode(500, ex is DbUpdateConcurrencyException
+                    ? "Conflicto de concurrencia. Otro usuario podría haber modificado este registro."
+                    : "Error al actualizar el usuario en la base de datos.");
             }
-
-            user.IsActive = false;
-
-            _context.Entry(user).Property(u => u.IsActive).IsModified = true;
-
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocurrió un error inesperado: {ex.Message}");
+            }
         }
 
         private bool UserExists(string id)

@@ -18,4 +18,8 @@ public partial class Appointment
     public string? StudentId { get; set; }
 
     public string? ProfessorComment { get; set; }
+
+    public virtual Course? Course { get; set; }
+
+    public virtual User? Student { get; set; }
 }

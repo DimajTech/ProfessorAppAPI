@@ -22,9 +22,7 @@ namespace ProfessorAPI.Controllers
         {
             return new string[] { "value1", "value2" };
         }
-
-        //---- DA ERROR ----
-        /*
+        
         // GET: api/Advisement/GetAdvisements
         [HttpGet]
         [Route("[action]")]
@@ -45,10 +43,8 @@ namespace ProfessorAPI.Controllers
                 })
                 .ToListAsync();
         }
-        */
-
-        //---- DA ERROR ----
-        /*
+        
+        
         // GET: api/Advisement/GetAdvisement
         [HttpGet]
         [Route("[action]/{id}")]
@@ -66,7 +62,6 @@ namespace ProfessorAPI.Controllers
 
             return advisement;
         }
-        */
 
         // PUT: api/Advisement/PutAdvisement
         [HttpPut]

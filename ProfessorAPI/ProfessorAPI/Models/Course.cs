@@ -18,4 +18,10 @@ public partial class Course
     public int? Year { get; set; }
 
     public bool? IsActive { get; set; }
+
+    public virtual ICollection<Advisement> Advisements { get; set; } = new List<Advisement>();
+
+    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+
+    public virtual User? Professor { get; set; }
 }

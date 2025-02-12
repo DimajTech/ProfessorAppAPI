@@ -15,9 +15,11 @@ public partial class PieceOfNews
 
     public string? Description { get; set; }
 
-    public DateOnly Date { get; set; }
+    public DateOnly? Date { get; set; }
 
     public byte[]? Picture { get; set; }
 
     public virtual User? Author { get; set; }
+
+    public virtual ICollection<CommentNews> CommentNews { get; set; } = new List<CommentNews>();
 }

@@ -15,9 +15,7 @@ namespace ProfessorAPI.Controllers
         {
             _context = context;
         }
-
-        //---- DA ERROR ----
-        /*
+        
         // GET: api/User/GetCourses
         [HttpGet]
         [Route("[action]")]
@@ -36,10 +34,8 @@ namespace ProfessorAPI.Controllers
                 return StatusCode(500, new { Message = "Ha ocurrido un error al obtener los cursos.", Details = ex.Message });
             }
         }
-        */
-
-        //---- DA ERROR ----
-        /*
+       
+        
         // GET: api/Course/GetCourse/5
         [HttpGet]
         [Route("[action]/{id}")]
@@ -55,7 +51,7 @@ namespace ProfessorAPI.Controllers
 
             return course;
         }
-        */
+        
 
         // POST: api/Course/PostCourse
         [HttpPost]
