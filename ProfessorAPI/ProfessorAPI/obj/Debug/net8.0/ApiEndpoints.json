@@ -281,6 +281,32 @@
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.UserController",
+    "Method": "GetUserByEmail",
+    "RelativePath": "api/User/GetUserByEmail/{email}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ProfessorAPI.Models.User",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ProfessorAPI.Controllers.UserController",
     "Method": "GetUsers",
     "RelativePath": "api/User/GetUsers",
     "HttpMethod": "GET",
@@ -298,27 +324,6 @@
         "StatusCode": 200
       }
     ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.UserController",
-    "Method": "PatchUser",
-    "RelativePath": "api/User/PatchUser/{id}",
-    "HttpMethod": "PATCH",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "patchDoc",
-        "Type": "Microsoft.AspNetCore.JsonPatch.JsonPatchDocument\u00601[[ProfessorAPI.Models.User, ProfessorAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.UserController",
@@ -345,6 +350,27 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "ProfessorAPI.Controllers.UserController",
+    "Method": "PutUser",
+    "RelativePath": "api/User/PutUser/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "user",
+        "Type": "ProfessorAPI.Models.User",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.WeatherForecastController",

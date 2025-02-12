@@ -1,1 +1,39 @@
+# Archivos y carpetas generados por Visual Studio
 .vs/
+.vscode/
+.idea/
+
+# Archivos binarios
+bin/
+obj/
+
+# Archivos de configuración locales de Visual Studio
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# Archivos de dependencias
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Archivos temporales de ASP.NET
+aspnet_client/
+
+# Archivos de caché de la herramienta de compilación
+*.cache
+*.log
+
+# Archivos de configuración locales
+appsettings.Development.json
+appsettings.Local.json
+
+# Carpetas de publicación
+publish/
+
+# Otros archivos comunes generados
+Thumbs.db
+Desktop.ini

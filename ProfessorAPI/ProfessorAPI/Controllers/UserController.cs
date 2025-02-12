@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ProfessorAPI.Models;
 
 namespace ProfessorAPI.Controllers
@@ -53,6 +54,20 @@ namespace ProfessorAPI.Controllers
             return user;
         }
 
+        [HttpGet]
+        [Route("[action]/{email}")]
+        public async Task<ActionResult<User>> GetUserByEmail(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email));
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return user;
+        }
+
         // POST: api/User/PostUser/
         [HttpPost]
         [Route("[action]")]
@@ -70,28 +85,29 @@ namespace ProfessorAPI.Controllers
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        // PATCH: api/User/PatchUser
-        [HttpPatch]
+        // PATCH: api/User/PutUser/5
+        [HttpPut]
         [Route("[action]/{id}")]
-        public async Task<IActionResult> PatchUser(string id, [FromBody] JsonPatchDocument<User> patchDoc)
+        public async Task<IActionResult> PutUser(string id, User user)
         {
-            if (patchDoc == null)
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(user.Id) || id != user.Id)
             {
                 return BadRequest();
             }
 
-            var userToUpdate = await _context.Users.FindAsync(id);
-            if (userToUpdate == null)
+            var originalUser = await _context.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
+
+            if (originalUser == null)
             {
                 return NotFound();
             }
 
-            patchDoc.ApplyTo(userToUpdate, ModelState);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            originalUser.Name = user.Name;
+            originalUser.Picture = user.Picture;
+            originalUser.Description = user.Description;
+            originalUser.LinkedIn = user.LinkedIn;
+            originalUser.ProfessionalBackground = user.ProfessionalBackground;
+            originalUser.Password = user.Password;
 
             try
             {
@@ -109,7 +125,7 @@ namespace ProfessorAPI.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(originalUser);
         }
 
         // DELETE: api/User/DeleteUser/5
