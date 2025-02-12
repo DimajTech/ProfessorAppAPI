@@ -411,6 +411,32 @@
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.UserController",
+    "Method": "GetUserByEmail",
+    "RelativePath": "api/User/GetUserByEmail/{email}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "ProfessorAPI.DTO.UserDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "ProfessorAPI.Controllers.UserController",
     "Method": "GetUsers",
     "RelativePath": "api/User/GetUsers",
     "HttpMethod": "GET",
