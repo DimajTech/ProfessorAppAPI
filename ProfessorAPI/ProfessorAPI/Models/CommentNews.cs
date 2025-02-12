@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace ProfessorAPI.Models;
@@ -14,10 +15,13 @@ public partial class CommentNews
     public string? Text { get; set; }
 
     public DateTime? Date { get; set; }
-
+    
     public virtual User? Author { get; set; }
 
+    public virtual PieceOfNews? PieceOfNews { get; set; }
+
+
+    [JsonIgnore]
     public virtual ICollection<CommentNewsResponse> CommentNewsResponses { get; set; } = new List<CommentNewsResponse>();
 
-    public virtual PieceOfNews? PieceOfNews { get; set; }
 }

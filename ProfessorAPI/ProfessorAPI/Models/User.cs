@@ -24,11 +24,12 @@ public partial class User
 
     public bool? IsActive { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
-
     public string? RegistrationStatus { get; set; }
 
     public string? Role { get; set; }
+
+    [JsonIgnore]
+    public DateTime? CreatedAt { get; set; }
 
     [JsonIgnore]
     public virtual ICollection<Advisement> Advisements { get; set; } = new List<Advisement>();
