@@ -22,7 +22,7 @@ namespace ProfessorAPI.Controllers
         [Route("[action]")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Users.Select(userItem => new User()
+            return await _context.Pie.Select(userItem => new User()
             {
                 Id = userItem.Id,
                 Name = userItem.Name,
@@ -43,7 +43,7 @@ namespace ProfessorAPI.Controllers
         [Route("[action]/{id}")]
         public async Task<ActionResult<User>> GetUser(string id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id.Equals(id));
+            var user = await _context.Pie.FirstOrDefaultAsync(u => u.Id.Equals(id));
 
             if (user == null)
             {
@@ -64,7 +64,7 @@ namespace ProfessorAPI.Controllers
             DateTime createdAt = DateTime.UtcNow; //creo que agarra la hora mal
             user.CreatedAt = createdAt;
 
-            _context.Users.Add(user);
+            _context.Pie.Add(user);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
@@ -80,7 +80,7 @@ namespace ProfessorAPI.Controllers
                 return BadRequest();
             }
 
-            var userToUpdate = await _context.Users.FindAsync(id);
+            var userToUpdate = await _context.Pie.FindAsync(id);
             if (userToUpdate == null)
             {
                 return NotFound();
@@ -119,7 +119,7 @@ namespace ProfessorAPI.Controllers
         {
             try
             {
-                var user = await _context.Users.FindAsync(id);
+                var user = await _context.Pie.FindAsync(id);
                 if (user == null)
                 {
                     return NotFound();
@@ -151,7 +151,7 @@ namespace ProfessorAPI.Controllers
 
         private bool UserExists(string id)
         {
-            return _context.Users.Any(e => e.Id.Equals(id));
+            return _context.Pie.Any(e => e.Id.Equals(id));
         }
     }
 }

@@ -27,7 +27,7 @@ public partial class DimajProfessorsDbContext : DbContext
 
     public virtual DbSet<ResponseAdvisement> ResponseAdvisements { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<User> Pie { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
        => optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
