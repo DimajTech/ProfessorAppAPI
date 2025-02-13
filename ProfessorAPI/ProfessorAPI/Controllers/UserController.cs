@@ -153,11 +153,9 @@ namespace ProfessorAPI.Controllers
 
                 return NoContent();
             }
-            catch (Exception ex) when (ex is DbUpdateConcurrencyException || ex is DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return StatusCode(500, ex is DbUpdateConcurrencyException
-                    ? "Conflicto de concurrencia. Otro usuario podría haber modificado este registro."
-                    : "Error al actualizar el usuario en la base de datos.");
+                return StatusCode(500, "Error al actualizar el usuario en la base de datos.");
             }
             catch (Exception ex)
             {
