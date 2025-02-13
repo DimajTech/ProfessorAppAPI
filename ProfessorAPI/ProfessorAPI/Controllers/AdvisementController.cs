@@ -28,7 +28,7 @@ namespace ProfessorAPI.Controllers
         [Route("[action]/{ProfessorEmail}")]
         public async Task<ActionResult<IEnumerable<Advisement>>> GetPublicAdvisements(string ProfessorEmail)
         {
-            // Buscar el ID del profesor a partir del email
+         
             var professor = await _context.Users
                 .Where(u => u.Email == ProfessorEmail)
                 .Select(u => u.Id)
@@ -42,19 +42,7 @@ namespace ProfessorAPI.Controllers
             var advisements = await _context.Advisements
                 .Include(a => a.Course)
                 .Include(a => a.Student)
-                .Where(a => a.IsPublic == true && a.Course.ProfessorId != professor) // Excluir consultas del profesor
-                .Select(a => new Advisement
-                {
-                    Id = a.Id,
-                    CourseId = a.CourseId,
-                    Content = a.Content,
-                    Status = a.Status,
-                    IsPublic = a.IsPublic,
-                    StudentId = a.StudentId,
-                    CreatedAt = a.CreatedAt,
-                    Course = a.Course,
-                    Student = a.Student
-                })
+                .Where(a => a.IsPublic == true && a.Course.ProfessorId != professor)
                 .ToListAsync();
 
             if (!advisements.Any())
@@ -62,7 +50,35 @@ namespace ProfessorAPI.Controllers
                 return NotFound("No hay consultas públicas disponibles.");
             }
 
-            return Ok(advisements);
+            var filteredAdvisements = advisements.Select(a => new Advisement
+            {
+                Id = a.Id,
+                Content = a.Content,
+                Status = a.Status,
+                IsPublic = a.IsPublic,
+                CreatedAt = a.CreatedAt,
+                CourseId = a.CourseId,
+                StudentId = a.StudentId,
+
+               
+                Course = a.Course != null ? new Course
+                {
+                    Id = a.Course.Id,
+                    Code = a.Course.Code,
+                    Name = a.Course.Name
+                } : null,
+
+             
+                Student = a.Student != null ? new User
+                {
+                    Id = a.Student.Id,
+                    Name = a.Student.Name,
+                    Email = a.Student.Email
+                } : null
+
+            }).ToList();
+
+            return Ok(filteredAdvisements);
         }
 
         // GET: api/Advisement/GetMyAdvisements/{ProfessorEmail}
@@ -70,7 +86,6 @@ namespace ProfessorAPI.Controllers
         [Route("[action]/{ProfessorEmail}")] // Parámetro en la URL
         public async Task<ActionResult<IEnumerable<Advisement>>> GetMyAdvisements(string ProfessorEmail)
         {
-            // Buscar el ID del profesor a partir del email
             var professor = await _context.Users
                 .Where(u => u.Email == ProfessorEmail)
                 .Select(u => u.Id)
@@ -82,27 +97,45 @@ namespace ProfessorAPI.Controllers
             }
 
             var advisements = await _context.Advisements
+                .Include(a => a.Course)
+                .Include(a => a.Student)
                 .Where(a => a.Course.ProfessorId == professor) // Todas las consultas del profesor
-                .Select(a => new Advisement
-                {
-                    Id = a.Id,
-                    CourseId = a.CourseId,
-                    Content = a.Content,
-                    Status = a.Status,
-                    IsPublic = a.IsPublic, // Indica si la consulta es pública o privada
-                    StudentId = a.StudentId,
-                    CreatedAt = a.CreatedAt
-                })
                 .ToListAsync();
 
-            if (!advisements.Any()) // Si la lista está vacía
+            if (!advisements.Any()) 
             {
                 return NotFound("No hay consultas disponibles.");
             }
 
-            return Ok(advisements);
-        }
+           
+            var filteredAdvisements = advisements.Select(a => new Advisement
+            {
+                Id = a.Id,
+                Content = a.Content,
+                Status = a.Status,
+                IsPublic = a.IsPublic,
+                CreatedAt = a.CreatedAt,
+                CourseId = a.CourseId,
+                StudentId = a.StudentId,
 
+                Course = a.Course != null ? new Course
+                {
+                    Id = a.Course.Id,
+                    Code = a.Course.Code,
+                    Name = a.Course.Name
+                } : null,
+
+          
+                Student = a.Student != null ? new User
+                {
+                    Id = a.Student.Id,
+                    Name = a.Student.Name
+                } : null
+
+            }).ToList();
+
+            return Ok(filteredAdvisements);
+        }
 
         // GET: api/Advisement/GetAdvisementById/{AdvisementId}
         [HttpGet]
