@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace ProfessorAPI.Models;
@@ -21,6 +22,7 @@ public partial class Advisement
 
     public virtual Course? Course { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<ResponseAdvisement> ResponseAdvisements { get; set; } = new List<ResponseAdvisement>();
 
     public virtual User? Student { get; set; }
