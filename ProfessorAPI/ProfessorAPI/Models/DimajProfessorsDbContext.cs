@@ -73,7 +73,7 @@ public partial class DimajProfessorsDbContext : DbContext
                 .HasForeignKey(d => d.CourseId)
                 .HasConstraintName("fk_Appointment_Course");
 
-            entity.HasOne(d => d.Student).WithMany(p => p.Appointments)
+            entity.HasOne(d => d.User).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.StudentId)
                 .HasConstraintName("fk_Appointment_User");
         });

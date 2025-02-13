@@ -21,5 +21,5 @@ public partial class Appointment
 
     public virtual Course? Course { get; set; }
 
-    public virtual User? Student { get; set; }
+    public virtual User? User { get; set; }
 }
