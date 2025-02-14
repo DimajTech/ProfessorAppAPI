@@ -69,10 +69,6 @@ namespace ProfessorAPI.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (news == null)
-            {
-                return NotFound();
-            }
 
             return Ok(news);
         }
