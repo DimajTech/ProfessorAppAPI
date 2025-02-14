@@ -21,30 +21,14 @@
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "DeleteAdvisement",
-    "RelativePath": "api/Advisement/DeleteAdvisement/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "GetAdvisement",
-    "RelativePath": "api/Advisement/GetAdvisement/{id}",
+    "Method": "GetAdvisementById",
+    "RelativePath": "api/Advisement/GetAdvisementById/{AdvisementId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
+        "Name": "AdvisementId",
         "Type": "System.String",
         "IsRequired": true
       }
@@ -63,12 +47,18 @@
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "GetAdvisements",
-    "RelativePath": "api/Advisement/GetAdvisements",
+    "Method": "GetMyAdvisements",
+    "RelativePath": "api/Advisement/GetMyAdvisements/{ProfessorEmail}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "ProfessorEmail",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[ProfessorAPI.Models.Advisement, ProfessorAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
@@ -83,21 +73,21 @@
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "PostAdvisement",
-    "RelativePath": "api/Advisement/PostAdvisement",
-    "HttpMethod": "POST",
+    "Method": "GetPublicAdvisements",
+    "RelativePath": "api/Advisement/GetPublicAdvisements/{ProfessorEmail}",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "newAdvisement",
-        "Type": "ProfessorAPI.Models.Advisement",
+        "Name": "ProfessorEmail",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "ProfessorAPI.Models.Advisement",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[ProfessorAPI.Models.Advisement, ProfessorAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -106,27 +96,6 @@
         "StatusCode": 200
       }
     ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "PutAdvisement",
-    "RelativePath": "api/Advisement/PutAdvisement/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "updatedAdvisement",
-        "Type": "ProfessorAPI.Models.Advisement",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.CommentNewsController",
@@ -520,6 +489,7 @@
         ],
         "StatusCode": 200
       }
-    ]
+    ],
+    "EndpointName": "GetWeatherForecast"
   }
 ]

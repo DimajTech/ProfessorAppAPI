@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProfessorAPI.DTO;
 using ProfessorAPI.Models;
 
 namespace ProfessorAPI.Controllers
@@ -30,7 +31,7 @@ namespace ProfessorAPI.Controllers
         {
             return await _context.Advisements
                 .Include(a => a.Course)
-                .Include(a => a.Student)
+                .Include(a => a.User)
                 .Select(advisement => new Advisement()
                 {
                     Id = advisement.Id,
@@ -39,7 +40,7 @@ namespace ProfessorAPI.Controllers
                     IsPublic = advisement.IsPublic,
                     CreatedAt = advisement.CreatedAt,
                     Course = advisement.Course,
-                    Student = advisement.Student
+                    User = advisement.User
                 })
                 .ToListAsync();
         }
@@ -52,7 +53,7 @@ namespace ProfessorAPI.Controllers
         {
             var advisement = await _context.Advisements
                 .Include(a => a.Course)
-                .Include(a => a.Student)
+                .Include(a => a.User)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (advisement == null)
@@ -148,5 +149,212 @@ namespace ProfessorAPI.Controllers
         {
             return _context.Advisements.Any(a => a.Id == id);
         }
+
+        // GET: api/Advisement/GetPublicAdvisements/{ProfessorEmail}
+        [HttpGet]
+        [Route("[action]/{ProfessorEmail}")]
+        public async Task<ActionResult<IEnumerable<Advisement>>> GetPublicAdvisements(string ProfessorEmail)
+        {
+
+            var professor = await _context.User
+                .Where(u => u.Email == ProfessorEmail)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+            if (professor == null)
+            {
+                return NotFound($"No se encontró un profesor con el correo {ProfessorEmail}.");
+            }
+
+            var advisements = await _context.Advisements
+                .Include(a => a.Course)
+                .Include(a => a.User)
+                .Where(a => a.IsPublic == true && a.Course.ProfessorId != professor)
+                .ToListAsync();
+
+            if (!advisements.Any())
+            {
+                return NotFound("No hay consultas públicas disponibles.");
+            }
+
+            var filteredAdvisements = advisements.Select(a => new Advisement
+            {
+                Id = a.Id,
+                Content = a.Content,
+                Status = a.Status,
+                IsPublic = a.IsPublic,
+                CreatedAt = a.CreatedAt,
+                CourseId = a.CourseId,
+                StudentId = a.StudentId,
+
+
+                Course = a.Course != null ? new Course
+                {
+                    Id = a.Course.Id,
+                    Code = a.Course.Code,
+                    Name = a.Course.Name
+                } : null,
+
+
+                User = a.User != null ? new User
+                {
+                    Id = a.User.Id,
+                    Name = a.User.Name,
+                    Email = a.  User.Email
+                } : null
+
+            }).ToList();
+
+            return Ok(filteredAdvisements);
+        }
+
+        // GET: api/Advisement/GetMyAdvisements/{ProfessorEmail}
+        [HttpGet]
+        [Route("[action]/{ProfessorEmail}")] // Parámetro en la URL
+        public async Task<ActionResult<IEnumerable<Advisement>>> GetMyAdvisements(string ProfessorEmail)
+        {
+            var professor = await _context.User
+                .Where(u => u.Email == ProfessorEmail)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+            if (professor == null)
+            {
+                return NotFound($"No se encontró un profesor con el correo {ProfessorEmail}.");
+            }
+
+            var advisements = await _context.Advisements
+                .Include(a => a.Course)
+                .Include(a => a.User)
+                .Where(a => a.Course.ProfessorId == professor) // Todas las consultas del profesor
+                .ToListAsync();
+
+            if (!advisements.Any())
+            {
+                return NotFound("No hay consultas disponibles.");
+            }
+
+
+            var filteredAdvisements = advisements.Select(a => new Advisement
+            {
+                Id = a.Id,
+                Content = a.Content,
+                Status = a.Status,
+                IsPublic = a.IsPublic,
+                CreatedAt = a.CreatedAt,
+                CourseId = a.CourseId,
+                StudentId = a.StudentId,
+
+                Course = a.Course != null ? new Course
+                {
+                    Id = a.Course.Id,
+                    Code = a.Course.Code,
+                    Name = a.Course.Name
+                } : null,
+
+
+                User = a.User != null ? new User
+                {
+                    Id = a.User.Id,
+                    Name = a.User.Name
+                } : null
+
+            }).ToList();
+
+            return Ok(filteredAdvisements);
+        }
+
+        // GET: api/Advisement/GetAdvisementById/{AdvisementId}
+        [HttpGet]
+        [Route("[action]/{AdvisementId}")]
+        public async Task<ActionResult<Advisement>> GetAdvisementById(string AdvisementId)
+        {
+            var advisement = await _context.Advisements
+                .Include(a => a.Course)
+                .Include(a => a.User)
+                .Where(a => a.Id == AdvisementId)
+                .Select(a => new Advisement
+                {
+                    Id = a.Id,
+                    CourseId = a.CourseId,
+                    Content = a.Content,
+                    Status = a.Status,
+                    IsPublic = a.IsPublic,
+                    StudentId = a.StudentId,
+                    CreatedAt = a.CreatedAt,
+                    Course = a.Course,
+                    User = a.User       
+                })
+                .FirstOrDefaultAsync();
+
+            if (advisement == null)
+            {
+                return NotFound($"No se encontró la consulta con ID {AdvisementId}.");
+            }
+
+            return Ok(advisement);
+        }
+
+        //TODO:
+
+
+        [HttpGet]
+        [Route("GetResponsesByAdvisement/{advisementId}")]
+        public async Task<ActionResult<IEnumerable<ResponseAdvisement>>> GetResponsesByAdvisement(string advisementId)
+        {
+            var responses = await _context.ResponseAdvisements
+                .Include(r => r.User)
+                .Where(r => r.AdvisementId == advisementId)
+                .Select(r => new ResponseAdvisement
+                {
+                    Id = r.Id,
+                    Text = r.Text,
+                    Date = r.Date,
+                    User = new User
+                    {
+                        Id = r.User.Id,
+                        Name = r.User.Name,
+                        Role = r.User.Role,
+                        IsActive = true
+                    }
+                })
+                .ToListAsync();
+
+            return Ok(responses);
+        }
+
+        [HttpPost("CreateResponseAdvisement")]
+        public async Task<IActionResult> CreateResponseAdvisement([FromBody] CreateResponseAdvisementDTO responseDto)
+        {
+            try
+            {
+                if (responseDto == null || string.IsNullOrWhiteSpace(responseDto.AdvisementId) ||
+                    string.IsNullOrWhiteSpace(responseDto.UserId) || string.IsNullOrWhiteSpace(responseDto.Text))
+                {
+                    return BadRequest(new { message = "Invalid request data." });
+                }
+
+                var response = new ResponseAdvisement
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    AdvisementId = responseDto.AdvisementId,
+                    UserId = responseDto.UserId,
+                    Text = responseDto.Text,
+                    Date = DateTime.UtcNow
+                };
+
+                // Agregar a la base de datos con Entity Framework
+                _context.ResponseAdvisements.Add(response);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Response added successfully", response });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { message = "An error occurred", error = e.Message });
+            }
+        }
+
+
     }
 }
