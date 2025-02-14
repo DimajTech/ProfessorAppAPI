@@ -22,131 +22,164 @@ namespace ProfessorAPI.Controllers
         {
             return new string[] { "value1", "value2" };
         }
-        
-        // GET: api/Advisement/GetAdvisements
+
+        // GET: api/Advisement/GetPublicAdvisements/{ProfessorEmail}
         [HttpGet]
-        [Route("[action]")]
-        public async Task<ActionResult<IEnumerable<Advisement>>> GetAdvisements()
+        [Route("[action]/{ProfessorEmail}")]
+        public async Task<ActionResult<IEnumerable<Advisement>>> GetPublicAdvisements(string ProfessorEmail)
         {
-            return await _context.Advisements
+
+            var professor = await _context.User
+                .Where(u => u.Email == ProfessorEmail)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+            if (professor == null)
+            {
+                return NotFound($"No se encontró un profesor con el correo {ProfessorEmail}.");
+            }
+
+            var advisements = await _context.Advisements
                 .Include(a => a.Course)
-                .Include(a => a.Student)
-                .Select(advisement => new Advisement()
-                {
-                    Id = advisement.Id,
-                    Content = advisement.Content,
-                    Status = advisement.Status,
-                    IsPublic = advisement.IsPublic,
-                    CreatedAt = advisement.CreatedAt,
-                    Course = advisement.Course,
-                    Student = advisement.Student
-                })
+                .Include(a => a.User)
+                .Where(a => a.IsPublic == true && a.Course.ProfessorId != professor)
                 .ToListAsync();
+
+            if (!advisements.Any())
+            {
+                return NotFound("No hay consultas públicas disponibles.");
+            }
+
+            var filteredAdvisements = advisements.Select(a => new Advisement
+            {
+                Id = a.Id,
+                Content = a.Content,
+                Status = a.Status,
+                IsPublic = a.IsPublic,
+                CreatedAt = a.CreatedAt,
+                CourseId = a.CourseId,
+                StudentId = a.StudentId,
+
+
+                Course = a.Course != null ? new Course
+                {
+                    Id = a.Course.Id,
+                    Code = a.Course.Code,
+                    Name = a.Course.Name
+                } : null,
+
+
+                User = a.User != null ? new User
+                {
+                    Id = a.User.Id,
+                    Name = a.User.Name,
+                    Email = a.User.Email
+                } : null
+
+            }).ToList();
+
+            return Ok(filteredAdvisements);
         }
-        
-        
-        // GET: api/Advisement/GetAdvisement
+
+        // GET: api/Advisement/GetMyAdvisements/{ProfessorEmail}
         [HttpGet]
-        [Route("[action]/{id}")]
-        public async Task<ActionResult<Advisement>> GetAdvisement(string id)
+        [Route("[action]/{ProfessorEmail}")] // Parámetro en la URL
+        public async Task<ActionResult<IEnumerable<Advisement>>> GetMyAdvisements(string ProfessorEmail)
+        {
+            var professor = await _context.User
+                .Where(u => u.Email == ProfessorEmail)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+            if (professor == null)
+            {
+                return NotFound($"No se encontró un profesor con el correo {ProfessorEmail}.");
+            }
+
+            var advisements = await _context.Advisements
+                .Include(a => a.Course)
+                .Include(a => a.User)
+                .Where(a => a.Course.ProfessorId == professor) // Todas las consultas del profesor
+                .ToListAsync();
+
+            if (!advisements.Any())
+            {
+                return NotFound("No hay consultas disponibles.");
+            }
+
+
+            var filteredAdvisements = advisements.Select(a => new Advisement
+            {
+                Id = a.Id,
+                Content = a.Content,
+                Status = a.Status,
+                IsPublic = a.IsPublic,
+                CreatedAt = a.CreatedAt,
+                CourseId = a.CourseId,
+                StudentId = a.StudentId,
+
+                Course = a.Course != null ? new Course
+                {
+                    Id = a.Course.Id,
+                    Code = a.Course.Code,
+                    Name = a.Course.Name
+                } : null,
+
+
+                User = a.User != null ? new User
+                {
+                    Id = a.User.Id,
+                    Name = a.User.Name
+                } : null
+
+            }).ToList();
+
+            return Ok(filteredAdvisements);
+        }
+
+        // GET: api/Advisement/GetAdvisementById/{AdvisementId}
+        [HttpGet]
+        [Route("[action]/{AdvisementId}")]
+        public async Task<ActionResult<Advisement>> GetAdvisementById(string AdvisementId)
         {
             var advisement = await _context.Advisements
                 .Include(a => a.Course)
-                .Include(a => a.Student)
-                .FirstOrDefaultAsync(a => a.Id == id);
+                .Include(a => a.User)
+                .Where(a => a.Id == AdvisementId)
+                .Select(a => new Advisement
+                {
+                    Id = a.Id,
+                    Content = a.Content,
+                    Status = a.Status,
+                    IsPublic = a.IsPublic,
+                    CreatedAt = a.CreatedAt,
+                    CourseId = a.CourseId,
+                    StudentId = a.StudentId,
+
+                    Course = a.Course != null ? new Course
+                    {
+                        Id = a.Course.Id,
+                        Code = a.Course.Code,
+                        Name = a.Course.Name
+                    } : null,
+
+                    User = a.User != null ? new User
+                    {
+                        Id = a.User.Id,
+                        Name = a.User.Name
+                    } : null
+
+                })
+                .FirstOrDefaultAsync();
 
             if (advisement == null)
             {
-                return NotFound(new { Message = "Advisement not found" });
+                return NotFound($"No se encontró la consulta con ID {AdvisementId}.");
             }
 
-            return advisement;
+            return Ok(advisement);
         }
 
-        // PUT: api/Advisement/PutAdvisement
-        [HttpPut]
-        [Route("[action]/{id}")]
-        public async Task<IActionResult> PutAdvisement(string id, Advisement updatedAdvisement)
-        {
-            if (id != updatedAdvisement.Id)
-            {
-                return BadRequest(new { Message = "Advisement ID mismatch" });
-            }
 
-            var advisement = new Advisement
-            {
-                Id = updatedAdvisement.Id,
-                Content = updatedAdvisement.Content,
-                Status = updatedAdvisement.Status,
-                IsPublic = updatedAdvisement.IsPublic,
-                CreatedAt = updatedAdvisement.CreatedAt,
-                CourseId = updatedAdvisement.CourseId,
-                StudentId = updatedAdvisement.StudentId
-            };
-
-            _context.Entry(advisement).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AdvisementExists(id))
-                {
-                    return NotFound(new { Message = "Advisement not found" });
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Advisement/PostAdvisement
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<ActionResult<Advisement>> PostAdvisement(Advisement newAdvisement)
-        {
-            var advisement = new Advisement
-            {
-                Id = Guid.NewGuid().ToString(),
-                Content = newAdvisement.Content,
-                Status = newAdvisement.Status,
-                IsPublic = newAdvisement.IsPublic,
-                CreatedAt = DateTime.UtcNow,
-                CourseId = newAdvisement.CourseId,
-                StudentId = newAdvisement.StudentId
-            };
-
-            _context.Advisements.Add(advisement);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetAdvisement", new { id = advisement.Id }, advisement);
-        }
-
-        // DELETE: api/Advisement/DeleteAdvisement
-        [HttpDelete]
-        [Route("[action]/{id}")]
-        public async Task<IActionResult> DeleteAdvisement(string id)
-        {
-            var advisement = await _context.Advisements.FindAsync(id);
-            if (advisement == null)
-            {
-                return NotFound(new { Message = "Advisement not found" });
-            }
-
-            _context.Advisements.Remove(advisement);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool AdvisementExists(string id)
-        {
-            return _context.Advisements.Any(a => a.Id == id);
-        }
     }
 }

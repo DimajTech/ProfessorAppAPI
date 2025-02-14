@@ -23,5 +23,5 @@ public partial class Advisement
 
     public virtual ICollection<ResponseAdvisement> ResponseAdvisements { get; set; } = new List<ResponseAdvisement>();
 
-    public virtual User? Student { get; set; }
+    public virtual User? User { get; set; }
 }
