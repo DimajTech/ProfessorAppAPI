@@ -18,6 +18,95 @@ namespace ProfessorAPI.Controllers
             _context = context;
         }
 
+
+        // PATCH: api/User/PatchUser
+        [HttpPatch]
+        [Route("[action]/{id}")]
+        public async Task<IActionResult> PatchUser(string id, [FromBody] JsonPatchDocument<User> patchDoc)
+        {
+            if (patchDoc == null)
+            {
+                return BadRequest();
+            }
+
+            var userToUpdate = await _context.User.FindAsync(id);
+            if (userToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            patchDoc.ApplyTo(userToUpdate, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        [HttpGet]
+        [Route("[action]/{email}")]
+        public async Task<ActionResult<UserDTO>> GetUserByEmail(string email)
+        {
+            var user = await _context.User
+                .Where(u => u.Email == email)
+                .Select(u => new UserDTO
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Password = u.Password,
+                    IsActive = u.IsActive ?? false,
+                    RegistrationStatus = u.RegistrationStatus ?? "",
+                    Role = u.Role ?? "",
+                    Name = u.Name ?? "",
+                    Description = u.Description ?? "",
+                    LinkedIn = u.LinkedIn ?? "",
+                    Picture = string.IsNullOrEmpty(u.Picture) ? "/images/user.png" : u.Picture
+                })
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+        /*
+        [HttpGet]
+        [Route("[action]/{email}")]
+        public async Task<ActionResult<User>> GetUserByEmail(string email)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Email.Equals(email));
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return user;
+        }
+        */
+        //----------------------
+
+
         // GET: api/User/GetUsers
         [HttpGet]
         [Route("[action]")]
@@ -71,28 +160,29 @@ namespace ProfessorAPI.Controllers
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        // PATCH: api/User/PatchUser
-        [HttpPatch]
+        // PATCH: api/User/PutUser/5
+        [HttpPut]
         [Route("[action]/{id}")]
-        public async Task<IActionResult> PatchUser(string id, [FromBody] JsonPatchDocument<User> patchDoc)
+        public async Task<IActionResult> PutUser(string id, User user)
         {
-            if (patchDoc == null)
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(user.Id) || id != user.Id)
             {
                 return BadRequest();
             }
 
-            var userToUpdate = await _context.User.FindAsync(id);
-            if (userToUpdate == null)
+            var originalUser = await _context.User.FirstOrDefaultAsync(u => u.Id.Equals(id));
+
+            if (originalUser == null)
             {
                 return NotFound();
             }
 
-            patchDoc.ApplyTo(userToUpdate, ModelState);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            originalUser.Name = user.Name;
+            originalUser.Picture = user.Picture;
+            originalUser.Description = user.Description;
+            originalUser.LinkedIn = user.LinkedIn;
+            originalUser.ProfessionalBackground = user.ProfessionalBackground;
+            originalUser.Password = user.Password;
 
             try
             {
@@ -110,7 +200,7 @@ namespace ProfessorAPI.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(originalUser);
         }
 
         // DELETE: api/User/DeleteUser/5
@@ -138,11 +228,9 @@ namespace ProfessorAPI.Controllers
 
                 return NoContent();
             }
-            catch (Exception ex) when (ex is DbUpdateConcurrencyException || ex is DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return StatusCode(500, ex is DbUpdateConcurrencyException
-                    ? "Conflicto de concurrencia. Otro usuario podría haber modificado este registro."
-                    : "Error al actualizar el usuario en la base de datos.");
+                return StatusCode(500, "Error al actualizar el usuario en la base de datos.");
             }
             catch (Exception ex)
             {
@@ -153,35 +241,6 @@ namespace ProfessorAPI.Controllers
         private bool UserExists(string id)
         {
             return _context.User.Any(e => e.Id.Equals(id));
-        }
-
-        [HttpGet]
-        [Route("[action]/{email}")]
-        public async Task<ActionResult<UserDTO>> GetUserByEmail(string email)
-        {
-            var user = await _context.User
-                .Where(u => u.Email == email)
-                .Select(u => new UserDTO
-                {
-                    Id = u.Id,
-                    Email = u.Email,
-                    Password = u.Password,
-                    IsActive = u.IsActive ?? false,
-                    RegistrationStatus = u.RegistrationStatus ?? "",
-                    Role = u.Role ?? "",
-                    Name = u.Name ?? "",
-                    Description = u.Description ?? "",
-                    LinkedIn = u.LinkedIn ?? "",
-                    Picture = string.IsNullOrEmpty(u.Picture) ? "/images/user.png" : u.Picture
-                })
-                .FirstOrDefaultAsync();
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(user);
         }
     }
 }
