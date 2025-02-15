@@ -18,78 +18,7 @@ namespace ProfessorAPI.Controllers
             _context = context;
         }
 
-
-        // PATCH: api/User/PatchUser
-        [HttpPatch]
-        [Route("[action]/{id}")]
-        public async Task<IActionResult> PatchUser(string id, [FromBody] JsonPatchDocument<User> patchDoc)
-        {
-            if (patchDoc == null)
-            {
-                return BadRequest();
-            }
-
-            var userToUpdate = await _context.User.FindAsync(id);
-            if (userToUpdate == null)
-            {
-                return NotFound();
-            }
-
-            patchDoc.ApplyTo(userToUpdate, ModelState);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        [HttpGet]
-        [Route("[action]/{email}")]
-        public async Task<ActionResult<UserDTO>> GetUserByEmail(string email)
-        {
-            var user = await _context.User
-                .Where(u => u.Email == email)
-                .Select(u => new UserDTO
-                {
-                    Id = u.Id,
-                    Email = u.Email,
-                    Password = u.Password,
-                    IsActive = u.IsActive ?? false,
-                    RegistrationStatus = u.RegistrationStatus ?? "",
-                    Role = u.Role ?? "",
-                    Name = u.Name ?? "",
-                    Description = u.Description ?? "",
-                    LinkedIn = u.LinkedIn ?? "",
-                    Picture = string.IsNullOrEmpty(u.Picture) ? "/images/user.png" : u.Picture
-                })
-                .FirstOrDefaultAsync();
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(user);
-        }
-        /*
+        
         [HttpGet]
         [Route("[action]/{email}")]
         public async Task<ActionResult<User>> GetUserByEmail(string email)
@@ -101,10 +30,10 @@ namespace ProfessorAPI.Controllers
                 return NotFound();
             }
 
+            user.Picture = string.IsNullOrEmpty(user.Picture) ? "/images/user.png" : user.Picture;
+
             return user;
         }
-        */
-        //----------------------
 
 
         // GET: api/User/GetUsers
