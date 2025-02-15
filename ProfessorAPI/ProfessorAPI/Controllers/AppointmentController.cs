@@ -147,38 +147,26 @@ namespace ProfessorAPI.Controllers
 
         [HttpPut]
         [Route("PutAppointment")]
-        public async Task<IActionResult> PutAppointment([FromBody] Appointment updatedAppointment)
+        public async Task<IActionResult> PutAppointment([FromBody] UpdateAppointmentDTO updatedAppointment)
         {
             if (updatedAppointment == null || string.IsNullOrEmpty(updatedAppointment.Id))
             {
-                return BadRequest("Datos inválidos o ID faltante");
+                return BadRequest("Invalid Data");
             }
 
             var existingAppointment = await _context.Appointments.FindAsync(updatedAppointment.Id);
 
             if (existingAppointment == null)
             {
-                return NotFound("cita no encontrada");
+                return NotFound();
             }
 
-            //actualizar los campos que vienen de request
-            if (updatedAppointment.Date != default)
-                existingAppointment.Date = updatedAppointment.Date;
-
-            if (!string.IsNullOrEmpty(updatedAppointment.Mode))
-                existingAppointment.Mode = updatedAppointment.Mode;
 
             if (!string.IsNullOrEmpty(updatedAppointment.Status))
                 existingAppointment.Status = updatedAppointment.Status;
 
             if (!string.IsNullOrEmpty(updatedAppointment.ProfessorComment))
                 existingAppointment.ProfessorComment = updatedAppointment.ProfessorComment;
-
-            if (updatedAppointment.Course != null)
-                existingAppointment.Course = updatedAppointment.Course;
-
-            if (updatedAppointment.User != null)
-                existingAppointment.User = updatedAppointment.User;
 
             try
             {
