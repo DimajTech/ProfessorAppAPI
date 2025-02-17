@@ -95,12 +95,9 @@ namespace ProfessorAPI.Controllers
                     Id = newsDTO.Id,
                     Title = newsDTO.Title,
                     Description = newsDTO.Description,
+                    Date = DateOnly.FromDateTime(DateTime.UtcNow),
                     Picture = imageBytes,
-                    Author = new User
-                    {
-                        Id = newsDTO.UserId,
-                        Role = newsDTO.UserRole
-                    }
+                    AuthorId = newsDTO.UserId
                 };
 
                 _context.PieceOfNews.Add(newPieceOfNews);
