@@ -710,7 +710,7 @@
       },
       {
         "Name": "newValues",
-        "Type": "ProfessorAPI.DTO.UpdateProfessorRequestDTO",
+        "Type": "ProfessorAPI.Models.User",
         "IsRequired": true
       }
     ],

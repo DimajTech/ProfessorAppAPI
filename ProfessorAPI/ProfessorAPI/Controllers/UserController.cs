@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ProfessorAPI.DTO;
 using ProfessorAPI.Models;
 using ProfessorAPI.Service.StudentsAPP;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace ProfessorAPI.Controllers
 {
@@ -13,10 +14,12 @@ namespace ProfessorAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly DimajProfessorsDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UserController(DimajProfessorsDbContext context)
+        public UserController(DimajProfessorsDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         
@@ -93,9 +96,9 @@ namespace ProfessorAPI.Controllers
         // PUT: api/User/PutUser/5
         [HttpPut]
         [Route("[action]/{id}")]
-        public async Task<IActionResult> PutUser(string id, [FromBody] UpdateProfessorRequestDTO newValues)
+        public async Task<IActionResult> PutUser(string id, [FromBody] User newValues)
         {
-            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(newValues.id) || id != newValues.id)
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(newValues.Id) || id != newValues.Id)
             {
                 return BadRequest();
             }
@@ -107,45 +110,46 @@ namespace ProfessorAPI.Controllers
                 return NotFound();
             }
 
-            originalUser.Name = newValues.name;
-            originalUser.Picture = newValues.picture;
-            originalUser.Description = newValues.description;
-            originalUser.LinkedIn = newValues.linkedin;
-            originalUser.ProfessionalBackground = newValues.professionalBackground;
-            originalUser.Password = newValues.password;
+            originalUser.Name = newValues.Name;
+            originalUser.Picture = newValues.Picture;
+            originalUser.Description = newValues.Description;
+            originalUser.LinkedIn = newValues.LinkedIn;
+            originalUser.ProfessionalBackground = newValues.ProfessionalBackground;
+            originalUser.Password = newValues.Password;
 
-            try
+            using (IDbContextTransaction transaction = await _context.Database.BeginTransactionAsync())
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
+                try
                 {
-                    return NotFound();
+                    await _context.SaveChangesAsync();
+
+                    /*
+                    var professor = new UpdateProfessorRequestDTO
+                    {
+                        id = originalUser.Id,
+                        name = originalUser.Name,
+                        picture = originalUser.Picture,
+                        description = originalUser.Description,
+                        linkedin = originalUser.LinkedIn,
+                        professionalBackground = originalUser.ProfessionalBackground,
+                        password = originalUser.Password
+                    };
+                    */
+
+                    var studentUserService = new StudentUserService(_configuration);
+
+                    await studentUserService.UpdateProfessor(originalUser);
+
+                    await transaction.CommitAsync();
+
+                    return Ok(originalUser);
                 }
-                else
+                catch (Exception ex)
                 {
-                    throw;
+                    await transaction.RollbackAsync();
+                    return StatusCode(500, ex.Message);
                 }
             }
-
-            /*
-            var professor = new UpdateProfessorRequestDTO
-            {
-                id = originalUser.Id,
-                name = originalUser.Name,
-                picture = originalUser.Picture,
-                description = originalUser.Description,
-                linkedin = originalUser.LinkedIn,
-                professionalBackground = originalUser.ProfessionalBackground,
-                password = originalUser.Password
-            };
-
-            StudentUserService.UpdateProfessor(professor);
-            */
-
-            return Ok(originalUser);
         }
 
         // DELETE: api/User/DeleteUser/5
