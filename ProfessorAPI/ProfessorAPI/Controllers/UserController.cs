@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProfessorAPI.DTO;
 using ProfessorAPI.Models;
+using ProfessorAPI.Service.StudentsAPP;
 
 namespace ProfessorAPI.Controllers
 {
@@ -89,12 +90,12 @@ namespace ProfessorAPI.Controllers
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        // PATCH: api/User/PutUser/5
+        // PUT: api/User/PutUser/5
         [HttpPut]
         [Route("[action]/{id}")]
-        public async Task<IActionResult> PutUser(string id, User user)
+        public async Task<IActionResult> PutUser(string id, [FromBody] UpdateProfessorRequestDTO newValues)
         {
-            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(user.Id) || id != user.Id)
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(newValues.id) || id != newValues.id)
             {
                 return BadRequest();
             }
@@ -106,12 +107,12 @@ namespace ProfessorAPI.Controllers
                 return NotFound();
             }
 
-            originalUser.Name = user.Name;
-            originalUser.Picture = user.Picture;
-            originalUser.Description = user.Description;
-            originalUser.LinkedIn = user.LinkedIn;
-            originalUser.ProfessionalBackground = user.ProfessionalBackground;
-            originalUser.Password = user.Password;
+            originalUser.Name = newValues.name;
+            originalUser.Picture = newValues.picture;
+            originalUser.Description = newValues.description;
+            originalUser.LinkedIn = newValues.linkedin;
+            originalUser.ProfessionalBackground = newValues.professionalBackground;
+            originalUser.Password = newValues.password;
 
             try
             {
@@ -128,6 +129,21 @@ namespace ProfessorAPI.Controllers
                     throw;
                 }
             }
+
+            /*
+            var professor = new UpdateProfessorRequestDTO
+            {
+                id = originalUser.Id,
+                name = originalUser.Name,
+                picture = originalUser.Picture,
+                description = originalUser.Description,
+                linkedin = originalUser.LinkedIn,
+                professionalBackground = originalUser.ProfessionalBackground,
+                password = originalUser.Password
+            };
+
+            StudentUserService.UpdateProfessor(professor);
+            */
 
             return Ok(originalUser);
         }
