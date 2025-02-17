@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProfessorAPI.DTO;
 using ProfessorAPI.Models;
+using System.Text.RegularExpressions;
 
 namespace ProfessorAPI.Controllers
 {
@@ -73,8 +74,47 @@ namespace ProfessorAPI.Controllers
             return Ok(news);
         }
 
-        //NECESARIO
+
+
+        //-------------MÉTODOS DEL MVC A LA API:----------------\\
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<ActionResult> AddPieceOfNews([FromBody] CreatePieceOfNewsDTO newsDTO)
+        {
+            try
+            {
+                string base64String = newsDTO.Picture;
+                base64String = Regex.Replace(base64String, "^data:.+;base64,", "");
+
+                // Convertir la cadena base64 a un arreglo de bytes
+                byte[] imageBytes = Convert.FromBase64String(base64String);
+
+                var newPieceOfNews = new PieceOfNews
+                {
+                    Id = newsDTO.Id,
+                    Title = newsDTO.Title,
+                    Description = newsDTO.Description,
+                    Picture = imageBytes,
+                    Author = new User
+                    {
+                        Id = newsDTO.UserId,
+                        Role = newsDTO.UserRole
+                    }
+                };
+
+                _context.PieceOfNews.Add(newPieceOfNews);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Message = "Piece of news added successfully..." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred adding the Piece of news...", Error = ex.Message });
+            }
+        }
         /*
+        //NECESARIO
         [HttpPost]
         [Route("InsertNews")]
         public async Task<IActionResult> InsertNews([FromBody] InsertNewsDTO newsDTO)

@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using ProfessorAPI.DTO;
 using ProfessorAPI.Models;
 using System.Text;
+using System.Text.RegularExpressions;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace ProfessorAPI.Controllers
@@ -151,7 +152,6 @@ namespace ProfessorAPI.Controllers
             }
         }
 
-
         //-------------COMUNICARSE CON EL MVC:----------------\\
 
         private IActionResult SendNewsCommentResponse(CommentNewsResponse comment)
@@ -171,7 +171,7 @@ namespace ProfessorAPI.Controllers
                     };
 
 
-                    var postTask = client.PostAsJsonAsync("/CommentNews/AddNewsCommentResponse", responseFormat);
+                    var postTask = client.PostAsJsonAsync("/CommentNews/AddNewsCommentResponseFromAPI", responseFormat);
                     postTask.Wait();
 
                     var result = postTask.Result;
@@ -210,7 +210,7 @@ namespace ProfessorAPI.Controllers
                     };
 
 
-                    var postTask = client.PostAsJsonAsync("CommentNews/AddNewsComment", commentFormat);
+                    var postTask = client.PostAsJsonAsync("CommentNews/AddNewsCommentFromAPI", commentFormat);
                     postTask.Wait();
 
                     var result = postTask.Result;
@@ -232,6 +232,60 @@ namespace ProfessorAPI.Controllers
             }
         }
 
+        //------------MVC con la API---------------\\
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<ActionResult> AddNewsCommentFromMVC([FromBody] CommentNewsDTO commentDto)
+        {
+            try
+            {
+                var newComment = new CommentNews
+                {
+                    Id = commentDto.Id,
+                    PieceOfNewsId = commentDto.PieceOfNewsId,
+                    AuthorId = commentDto.AuthorId,
+                    Text = commentDto.Text,
+                    Date = DateTime.UtcNow
+                };
+
+                _context.CommentNews.Add(newComment);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Message = "Comment added successfully...", CommentId = newComment.Id });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred adding...", Error = ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<ActionResult> AddNewsCommentResponseFromMVC([FromBody] CommentNewsResponseDTO commentResponseDto)
+        {
+            try
+            {
+                var newResponse = new CommentNewsResponse
+                {
+                    Id = commentResponseDto.Id,
+                    CommentNewsId = commentResponseDto.CommentNewsId,
+                    AuthorId = commentResponseDto.AuthorId,
+                    Text = commentResponseDto.Text,
+                    Date = DateTime.UtcNow
+                };
+
+                _context.CommentNewsResponses.Add(newResponse);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Message = "Response added successfully..." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred adding...", Error = ex.Message });
+            }
+        }
 
     }
 }
