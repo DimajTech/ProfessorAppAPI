@@ -123,19 +123,6 @@ namespace ProfessorAPI.Controllers
                 {
                     await _context.SaveChangesAsync();
 
-                    /*
-                    var professor = new UpdateProfessorRequestDTO
-                    {
-                        id = originalUser.Id,
-                        name = originalUser.Name,
-                        picture = originalUser.Picture,
-                        description = originalUser.Description,
-                        linkedin = originalUser.LinkedIn,
-                        professionalBackground = originalUser.ProfessionalBackground,
-                        password = originalUser.Password
-                    };
-                    */
-
                     var studentUserService = new StudentUserService(_configuration);
 
                     await studentUserService.UpdateProfessor(originalUser);
@@ -191,5 +178,41 @@ namespace ProfessorAPI.Controllers
         {
             return _context.User.Any(e => e.Id.Equals(id));
         }
+
+        //----------------------- STUDENT-TO-PROFESSOR METHODS -----------------------
+        [HttpPut]
+        [Route("[action]/{id}")]
+        public async Task<IActionResult> UpdateStudent(string id, [FromBody] UpdateStudentDTO newValues)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(newValues.id) || id != newValues.id)
+            {
+                return BadRequest();
+            }
+
+            var originalUser = await _context.User.FirstOrDefaultAsync(u => u.Id.Equals(id));
+
+            if (originalUser == null)
+            {
+                return NotFound();
+            }
+
+            originalUser.Name = newValues.name;
+            originalUser.Picture = newValues.picture;
+            originalUser.Description = newValues.description;
+            originalUser.LinkedIn = newValues.linkedin;
+            originalUser.Password = newValues.password;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+            return Ok(originalUser);
+        }
+
     }
 }

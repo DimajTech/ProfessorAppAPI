@@ -21,64 +21,6 @@
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "CreateResponseAdvisement",
-    "RelativePath": "api/Advisement/CreateResponseAdvisement",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "responseDto",
-        "Type": "ProfessorAPI.DTO.CreateResponseAdvisementDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "DeleteAdvisement",
-    "RelativePath": "api/Advisement/DeleteAdvisement/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "GetAdvisement",
-    "RelativePath": "api/Advisement/GetAdvisement/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "ProfessorAPI.Models.Advisement",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
     "Method": "GetAdvisementById",
     "RelativePath": "api/Advisement/GetAdvisementById/{AdvisementId}",
     "HttpMethod": "GET",
@@ -94,26 +36,6 @@
     "ReturnTypes": [
       {
         "Type": "ProfessorAPI.Models.Advisement",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "GetAdvisements",
-    "RelativePath": "api/Advisement/GetAdvisements",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[ProfessorAPI.Models.Advisement, ProfessorAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -174,173 +96,6 @@
         "StatusCode": 200
       }
     ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "GetResponsesByAdvisement",
-    "RelativePath": "api/Advisement/GetResponsesByAdvisement/{advisementId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "advisementId",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[ProfessorAPI.Models.ResponseAdvisement, ProfessorAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "PostAdvisement",
-    "RelativePath": "api/Advisement/PostAdvisement",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "newAdvisement",
-        "Type": "ProfessorAPI.Models.Advisement",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "ProfessorAPI.Models.Advisement",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AdvisementController",
-    "Method": "PutAdvisement",
-    "RelativePath": "api/Advisement/PutAdvisement/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "updatedAdvisement",
-        "Type": "ProfessorAPI.Models.Advisement",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AppointmentController",
-    "Method": "GetAppointmentById",
-    "RelativePath": "api/Appointment/GetAppointmentById/{appointmentId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "appointmentId",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "ProfessorAPI.Models.Appointment",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AppointmentController",
-    "Method": "GetAppointments",
-    "RelativePath": "api/Appointment/GetAppointments",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "data",
-        "Type": "ProfessorAPI.DTO.AppointmentFilterDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[ProfessorAPI.Models.Appointment, ProfessorAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AppointmentController",
-    "Method": "GetReviewedAppointments",
-    "RelativePath": "api/Appointment/GetReviewedAppointments/{professorId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "professorId",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[ProfessorAPI.Models.Appointment, ProfessorAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.AppointmentController",
-    "Method": "PutAppointment",
-    "RelativePath": "api/Appointment/PutAppointment",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "updatedAppointment",
-        "Type": "ProfessorAPI.DTO.UpdateAppointmentDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.CommentNewsController",
@@ -639,7 +394,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "ProfessorAPI.Models.User",
+        "Type": "ProfessorAPI.DTO.UserDTO",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -671,6 +426,27 @@
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.UserController",
+    "Method": "PatchUser",
+    "RelativePath": "api/User/PatchUser/{id}",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "patchDoc",
+        "Type": "Microsoft.AspNetCore.JsonPatch.JsonPatchDocument\u00601[[ProfessorAPI.Models.User, ProfessorAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ProfessorAPI.Controllers.UserController",
     "Method": "PostUser",
     "RelativePath": "api/User/PostUser",
     "HttpMethod": "POST",
@@ -694,27 +470,6 @@
         "StatusCode": 200
       }
     ]
-  },
-  {
-    "ContainingType": "ProfessorAPI.Controllers.UserController",
-    "Method": "PutUser",
-    "RelativePath": "api/User/PutUser/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "newValues",
-        "Type": "ProfessorAPI.Models.User",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
   },
   {
     "ContainingType": "ProfessorAPI.Controllers.WeatherForecastController",
