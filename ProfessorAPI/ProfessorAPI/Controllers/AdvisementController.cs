@@ -11,10 +11,15 @@ namespace ProfessorAPI.Controllers
     public class AdvisementController : ControllerBase
     {
         private readonly DimajProfessorsDbContext _context;
+        private readonly string STUDENT_APP_URL;
+        private readonly IConfiguration _configuration;
 
-        public AdvisementController(DimajProfessorsDbContext context)
+        public AdvisementController(DimajProfessorsDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
+            STUDENT_APP_URL = _configuration["EnvironmentVariables:STUDENT_APP_URL"];
+
         }
 
         // GET: api/<AdvisementController>
@@ -109,11 +114,11 @@ namespace ProfessorAPI.Controllers
         // POST: api/Advisement/PostAdvisement
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<Advisement>> PostAdvisement(Advisement newAdvisement)
+        public async Task<ActionResult<Advisement>> AddAdvisement(Advisement newAdvisement)
         {
             var advisement = new Advisement
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = newAdvisement.Id,
                 Content = newAdvisement.Content,
                 Status = newAdvisement.Status,
                 IsPublic = newAdvisement.IsPublic,
@@ -303,22 +308,23 @@ namespace ProfessorAPI.Controllers
         public async Task<ActionResult<IEnumerable<ResponseAdvisement>>> GetResponsesByAdvisement(string advisementId)
         {
             var responses = await _context.ResponseAdvisements
-                .Include(r => r.User)
-                .Where(r => r.AdvisementId == advisementId)
-                .Select(r => new ResponseAdvisement
-                {
-                    Id = r.Id,
-                    Text = r.Text,
-                    Date = r.Date,
-                    User = new User
-                    {
-                        Id = r.User.Id,
-                        Name = r.User.Name,
-                        Role = r.User.Role,
-                        IsActive = true
-                    }
-                })
-                .ToListAsync();
+             .Include(r => r.User)
+             .Where(r => r.AdvisementId == advisementId)
+             .OrderByDescending(r => r.Date) // Ordena de más reciente a más antigua
+             .Select(r => new ResponseAdvisement
+             {
+                 Id = r.Id,
+                 Text = r.Text,
+                 Date = r.Date,
+                 User = new User
+                 {
+                     Id = r.User.Id,
+                     Name = r.User.Name,
+                     Role = r.User.Role,
+                     IsActive = true
+                 }
+             })
+             .ToListAsync();
 
             return Ok(responses);
         }
@@ -336,12 +342,47 @@ namespace ProfessorAPI.Controllers
 
                 var response = new ResponseAdvisement
                 {
-                    Id = Guid.NewGuid().ToString(),
+                    Id = responseDto.Id is null ? Guid.NewGuid().ToString() : responseDto.Id,
                     AdvisementId = responseDto.AdvisementId,
                     UserId = responseDto.UserId,
                     Text = responseDto.Text,
-                    Date = DateTime.UtcNow
+                    Date = DateTime.Now
                 };
+                responseDto.Id = response.Id;
+
+                SendAdvisementResponse(responseDto);
+                // Agregar a la base de datos con Entity Framework
+                _context.ResponseAdvisements.Add(response);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Response added successfully", response });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { message = "An error occurred", error = e.Message });
+            }
+        }
+
+        [HttpPost("CreateResponseAdvisementFromStudent")]
+        public async Task<IActionResult> CreateResponseAdvisementFromStudent([FromBody] CreateResponseAdvisementDTO responseDto)
+        {
+            try
+            {
+                if (responseDto == null || string.IsNullOrWhiteSpace(responseDto.AdvisementId) ||
+                    string.IsNullOrWhiteSpace(responseDto.UserId) || string.IsNullOrWhiteSpace(responseDto.Text))
+                {
+                    return BadRequest(new { message = "Invalid request data." });
+                }
+
+                var response = new ResponseAdvisement
+                {
+                    Id = responseDto.Id is null ? Guid.NewGuid().ToString() : responseDto.Id,
+                    AdvisementId = responseDto.AdvisementId,
+                    UserId = responseDto.UserId,
+                    Text = responseDto.Text,
+                    Date = DateTime.Now
+                };
+                responseDto.Id = response.Id;
 
                 // Agregar a la base de datos con Entity Framework
                 _context.ResponseAdvisements.Add(response);
@@ -352,6 +393,47 @@ namespace ProfessorAPI.Controllers
             catch (Exception e)
             {
                 return StatusCode(500, new { message = "An error occurred", error = e.Message });
+            }
+        }
+
+
+
+        private IActionResult SendAdvisementResponse(CreateResponseAdvisementDTO response)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(STUDENT_APP_URL);
+
+                    var responseFormat = new
+                    {
+                        Id = response.Id,
+                        AdvisementId = response.AdvisementId, // Cambiado de PieceOfNewsId a AdvisementId
+                        UserId = response.UserId, // Cambiado de AuthorId a UserId
+                        Text = response.Text
+                    };
+
+
+                    var postTask = client.PostAsJsonAsync("Advisement/AddNewResponseFromAPI", responseFormat);
+                    postTask.Wait();
+
+                    var result = postTask.Result;
+
+                    if (result.IsSuccessStatusCode)
+                    {
+                        return Ok(new { Message = "Response added successfully" });
+                    }
+                    else
+                    {
+                        var errorMessage = result.Content.ReadAsStringAsync().Result;
+                        return StatusCode((int)result.StatusCode, new { Message = "Failed to add comment", Error = errorMessage });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Exception occurred", Error = ex.Message });
             }
         }
 
