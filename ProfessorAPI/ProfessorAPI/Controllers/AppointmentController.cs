@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProfessorAPI.DTO;
 using ProfessorAPI.Models;
+using System.Net;
 
 namespace ProfessorAPI.Controllers
 {
@@ -10,10 +11,16 @@ namespace ProfessorAPI.Controllers
     public class AppointmentController : Controller
     {
         private readonly DimajProfessorsDbContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly string STUDENT_APP_URL;
 
-        public AppointmentController(DimajProfessorsDbContext context)
+
+        public AppointmentController(DimajProfessorsDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
+
+            STUDENT_APP_URL = _configuration["EnvironmentVariables:STUDENT_APP_URL"];
         }
 
         [HttpPost]
@@ -171,6 +178,9 @@ namespace ProfessorAPI.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+
+                SendUpdateAppointment(updatedAppointment);
                 return Ok(new { success = true, appointment = existingAppointment });
             }
             catch (Exception ex)
@@ -179,5 +189,72 @@ namespace ProfessorAPI.Controllers
             }
         }
 
+
+
+        //Comunicaciòn MVC
+        private IActionResult SendUpdateAppointment(UpdateAppointmentDTO updateAppointment)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(STUDENT_APP_URL);
+
+                    var responseFormat = new
+                    {
+                        Id = updateAppointment.Id,
+                        Status = updateAppointment.Status,
+                        ProfessorComment = updateAppointment.ProfessorComment,
+                    };
+
+                    
+                    var putTask = client.PutAsJsonAsync("/Appointment/UpdateAppointment", responseFormat);
+                    putTask.Wait();
+
+                    var result = putTask.Result;
+
+                    if (result.IsSuccessStatusCode)
+                    {
+                        return Ok(new { Message = "Updated successfully" });
+                    }
+                    else
+                    {
+                        var errorMessage = result.Content.ReadAsStringAsync().Result;
+                        return StatusCode((int)result.StatusCode, new { Message = "Failed to update", Error = errorMessage });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Exception occurred", Error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<ActionResult> CreateAppointmentFromMVC([FromBody] CreateAppointmentDTO appointmentDTO)
+        {
+            try
+            {
+                var newAppointment = new Appointment
+                {
+                    Id = appointmentDTO.Id,
+                    Date = appointmentDTO.Date,
+                    Mode = appointmentDTO.Mode,
+                    Status = appointmentDTO.Status,
+                    CourseId = appointmentDTO.CourseId,
+                    StudentId = appointmentDTO.StudentId,
+                };
+
+                _context.Appointments.Add(newAppointment);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Message = "Response added successfully..." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred adding...", Error = ex.Message });
+            }
+        }
     }
 }
