@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProfessorAPI.DTO;
 using ProfessorAPI.Models;
+using ProfessorAPI.Service.StudentsAPP;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace ProfessorAPI.Controllers
 {
@@ -12,10 +14,12 @@ namespace ProfessorAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly DimajProfessorsDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UserController(DimajProfessorsDbContext context)
+        public UserController(DimajProfessorsDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         
@@ -89,12 +93,12 @@ namespace ProfessorAPI.Controllers
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        // PATCH: api/User/PutUser/5
+        // PUT: api/User/PutUser/5
         [HttpPut]
         [Route("[action]/{id}")]
-        public async Task<IActionResult> PutUser(string id, User user)
+        public async Task<IActionResult> PutUser(string id, [FromBody] User newValues)
         {
-            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(user.Id) || id != user.Id)
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(newValues.Id) || id != newValues.Id)
             {
                 return BadRequest();
             }
@@ -106,30 +110,33 @@ namespace ProfessorAPI.Controllers
                 return NotFound();
             }
 
-            originalUser.Name = user.Name;
-            originalUser.Picture = user.Picture;
-            originalUser.Description = user.Description;
-            originalUser.LinkedIn = user.LinkedIn;
-            originalUser.ProfessionalBackground = user.ProfessionalBackground;
-            originalUser.Password = user.Password;
+            originalUser.Name = newValues.Name;
+            originalUser.Picture = newValues.Picture;
+            originalUser.Description = newValues.Description;
+            originalUser.LinkedIn = newValues.LinkedIn;
+            originalUser.ProfessionalBackground = newValues.ProfessionalBackground;
+            originalUser.Password = newValues.Password;
 
-            try
+            using (IDbContextTransaction transaction = await _context.Database.BeginTransactionAsync())
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
+                try
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    await _context.SaveChangesAsync();
 
-            return Ok(originalUser);
+                    var studentUserService = new StudentUserService(_configuration);
+
+                    await studentUserService.UpdateProfessor(originalUser);
+
+                    await transaction.CommitAsync();
+
+                    return Ok(originalUser);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return StatusCode(500, ex.Message);
+                }
+            }
         }
 
         // DELETE: api/User/DeleteUser/5
@@ -171,5 +178,41 @@ namespace ProfessorAPI.Controllers
         {
             return _context.User.Any(e => e.Id.Equals(id));
         }
+
+        //----------------------- STUDENT-TO-PROFESSOR METHODS -----------------------
+        [HttpPut]
+        [Route("[action]/{id}")]
+        public async Task<IActionResult> UpdateStudent(string id, [FromBody] UpdateStudentDTO newValues)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(newValues.id) || id != newValues.id)
+            {
+                return BadRequest();
+            }
+
+            var originalUser = await _context.User.FirstOrDefaultAsync(u => u.Id.Equals(id));
+
+            if (originalUser == null)
+            {
+                return NotFound();
+            }
+
+            originalUser.Name = newValues.name;
+            originalUser.Picture = newValues.picture;
+            originalUser.Description = newValues.description;
+            originalUser.LinkedIn = newValues.linkedin;
+            originalUser.Password = newValues.password;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+            return Ok(originalUser);
+        }
+
     }
 }
