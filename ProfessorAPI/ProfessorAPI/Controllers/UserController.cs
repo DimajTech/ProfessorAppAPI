@@ -214,5 +214,29 @@ namespace ProfessorAPI.Controllers
             return Ok(originalUser);
         }
 
+        //----------------------- ADMIN-TO-PROFESSOR METHODS -----------------------
+        [HttpPatch]
+        [Route("[action]/{id}")]
+        public async Task<IActionResult> ChangeUserStatus(string id, [FromBody] StatusUpdateDTO status)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Id.Equals(id));
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                user.RegistrationStatus = status.status;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+            return Ok();
+        }
     }
 }
