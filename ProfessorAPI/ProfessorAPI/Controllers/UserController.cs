@@ -6,6 +6,7 @@ using ProfessorAPI.DTO;
 using ProfessorAPI.Models;
 using ProfessorAPI.Service.StudentsAPP;
 using Microsoft.EntityFrameworkCore.Storage;
+using ProfessorAPI.Service.AdminApp;
 
 namespace ProfessorAPI.Controllers
 {
@@ -113,27 +114,26 @@ namespace ProfessorAPI.Controllers
             originalUser.LinkedIn = newValues.LinkedIn;
             originalUser.ProfessionalBackground = newValues.ProfessionalBackground;
             originalUser.Password = newValues.Password;
-
-            using (IDbContextTransaction transaction = await _context.Database.BeginTransactionAsync())
+           
+            try
             {
-                try
-                {
-                    await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-                    var studentUserService = new StudentUserService(_configuration);
+                var studentUserService = new StudentUserService(_configuration);
 
-                    await studentUserService.UpdateProfessor(originalUser);
+                await studentUserService.UpdateProfessor(originalUser);
 
-                    await transaction.CommitAsync();
+                var adminUserService = new AdminUserService(_configuration);
 
-                    return Ok(originalUser);
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    return StatusCode(500, ex.Message);
-                }
+                await adminUserService.UpdateProfessor(originalUser);
+
+                return Ok(originalUser);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            
         }
 
         // DELETE: api/User/DeleteUser/5
