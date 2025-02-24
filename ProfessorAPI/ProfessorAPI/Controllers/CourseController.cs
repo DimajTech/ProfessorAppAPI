@@ -109,7 +109,7 @@ namespace ProfessorAPI.Controllers
         // DELETE: api/Student/DeleteCourse/5
         [HttpDelete]
         [Route("[action]/{id}")]
-        public async Task<IActionResult> DeleteCorse(string id)
+        public async Task<IActionResult> DeleteCourse(string id)
         {
             var course = await _context.Courses.FindAsync(id);
             if (course == null)
