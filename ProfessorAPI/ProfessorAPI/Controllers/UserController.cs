@@ -79,13 +79,10 @@ namespace ProfessorAPI.Controllers
         // POST: api/User/PostUser/
         [HttpPost]
         [Route("[action]")]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<User>> PostUser([FromBody]User user)
         {
-            var userId = Guid.NewGuid().ToString();
-            user.Id = userId;
-
-            DateTime createdAt = DateTime.UtcNow; //creo que agarra la hora mal
-            user.CreatedAt = createdAt;
+            
+            user.IsActive = true;           
 
             _context.User.Add(user);
             await _context.SaveChangesAsync();
@@ -212,6 +209,21 @@ namespace ProfessorAPI.Controllers
             }
 
             return Ok(originalUser);
+        }
+
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<ActionResult<User>> InsertStudentUser(User user)
+        {
+            
+            DateTime createdAt = DateTime.UtcNow; //creo que agarra la hora mal
+            user.CreatedAt = createdAt;
+
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
         //----------------------- ADMIN-TO-PROFESSOR METHODS -----------------------
