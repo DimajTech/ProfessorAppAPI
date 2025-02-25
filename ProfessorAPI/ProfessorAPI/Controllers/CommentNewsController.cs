@@ -16,6 +16,7 @@ namespace ProfessorAPI.Controllers
         private readonly DimajProfessorsDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly string STUDENT_APP_URL;
+        private readonly string ADMIN_API_URL;
 
         public CommentNewsController(DimajProfessorsDbContext context, IConfiguration configuration)
         {
@@ -23,6 +24,7 @@ namespace ProfessorAPI.Controllers
             _configuration = configuration;
 
             STUDENT_APP_URL = _configuration["EnvironmentVariables:STUDENT_APP_URL"];
+            ADMIN_API_URL = _configuration["EnvironmentVariables:ADMIN_API_URL"];
 
         }
         [HttpGet]
@@ -114,6 +116,28 @@ namespace ProfessorAPI.Controllers
                 //------------LLAMAR AL MVC-------------\\
                 SendNewsComment(newComment);
 
+
+                //------------LLAMAR API ADMINS-------------\\
+
+                using (var client = new HttpClient())
+                {
+
+                    client.BaseAddress = new Uri(ADMIN_API_URL);
+
+
+                    var postTask = client.PostAsJsonAsync("/api/commentNews/saveCommentNews", newComment);
+                    postTask.Wait();
+
+                    var result = postTask.Result;
+
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        var errorMessage = result.Content.ReadAsStringAsync().Result;
+                        return StatusCode((int)result.StatusCode, new { Message = "Failed to add Comment", Error = errorMessage });
+                    }
+
+                }
+
                 return Ok(new { Message = "Comment added successfully...", CommentId = newComment.Id });
             }
             catch (Exception ex)
@@ -143,6 +167,27 @@ namespace ProfessorAPI.Controllers
 
                 //------------LLAMAR AL MVC-------------\\
                 SendNewsCommentResponse(newResponse);
+
+                //------------LLAMAR API ADMINS-------------\\
+
+                using (var client = new HttpClient())
+                {
+
+                    client.BaseAddress = new Uri(ADMIN_API_URL);
+
+
+                    var postTask = client.PostAsJsonAsync("/api/commentNewsResponse/saveCommentNewsResponse", newResponse);
+                    postTask.Wait();
+
+                    var result = postTask.Result;
+
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        var errorMessage = result.Content.ReadAsStringAsync().Result;
+                        return StatusCode((int)result.StatusCode, new { Message = "Failed to add Response", Error = errorMessage });
+                    }
+
+                }
 
                 return Ok(new { Message = "Response added successfully..." });
             }
@@ -286,6 +331,66 @@ namespace ProfessorAPI.Controllers
                 return StatusCode(500, new { Message = "An error occurred adding...", Error = ex.Message });
             }
         }
+
+        [HttpPost]
+        [Route("[action]/{commentNewsId}")]
+        public async Task<ActionResult> DeleteCommentNewsById(string commentNewsId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var responses = _context.CommentNewsResponses.Where(r => r.CommentNewsId == commentNewsId);
+                _context.CommentNewsResponses.RemoveRange(responses);
+                await _context.SaveChangesAsync();
+
+                var comment = await _context.CommentNews.FindAsync(commentNewsId);
+                if (comment == null)
+                {
+                    await transaction.RollbackAsync();
+                    return Ok(new { Message = "Comment not found." });
+                }
+
+                _context.CommentNews.Remove(comment);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return Ok(new { Message = "Comment deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { Message = "An error occurred deleting the comment...", Error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]/{responseId}")]
+        public async Task<IActionResult> DeleteResponseById(string responseId)
+        {
+            try
+            {
+                var response = await _context.CommentNewsResponses.FindAsync(responseId);
+
+                if (response == null)
+                {
+                    return NotFound(new { Message = "Response not found." });
+                }
+
+                _context.CommentNewsResponses.Remove(response);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Message = "Response deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while deleting the response.", Error = ex.Message });
+            }
+        }
+
+
+
 
     }
 }
