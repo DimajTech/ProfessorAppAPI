@@ -110,43 +110,51 @@ namespace ProfessorAPI.Controllers
                 return StatusCode(500, new { Message = "An error occurred adding the Piece of news...", Error = ex.Message });
             }
         }
-        /*
-        //NECESARIO
         [HttpPost]
-        [Route("InsertNews")]
-        public async Task<IActionResult> InsertNews([FromBody] InsertNewsDTO newsDTO)
+        [Route("[action]/{newsId}")]
+        public async Task<ActionResult> DeletePieceOfNews(string newsId)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
-                // Convertir Base64 a byte[]
-                byte[] pictureBytes = Convert.FromBase64String(newsDTO.Picture);
+                // Eliminar respuestas de comentarios asociadas a la noticia
+                var commentResponses = _context.CommentNewsResponses
+                    .Where(cr => _context.CommentNews
+                        .Where(c => c.PieceOfNewsId == newsId)
+                        .Select(c => c.Id)
+                        .Contains(cr.CommentNewsId));
 
-                var newPieceOfNews = new PieceOfNews
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Title = newsDTO.Title,
-                    Picture = pictureBytes, // Guardamos la imagen convertida
-                    AuthorId = newsDTO.AuthorId,
-                    Description = newsDTO.Description,
-                    Date = DateOnly.FromDateTime(DateTime.Now),
-                    File = null
-                };
-
-                _context.PieceOfNews.Add(newPieceOfNews);
+                _context.CommentNewsResponses.RemoveRange(commentResponses);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { Message = "News inserted successfully", NewsId = newPieceOfNews.Id });
-            }
-            catch (FormatException)
-            {
-                return BadRequest(new { Message = "Invalid Base64 format" });
+                // Eliminar comentarios asociados a la noticia
+                var comments = _context.CommentNews.Where(c => c.PieceOfNewsId == newsId);
+                _context.CommentNews.RemoveRange(comments);
+                await _context.SaveChangesAsync();
+
+                // Eliminar la noticia
+                var pieceOfNews = await _context.PieceOfNews.FindAsync(newsId);
+                if (pieceOfNews != null)
+                {
+                    _context.PieceOfNews.Remove(pieceOfNews);
+                    await _context.SaveChangesAsync();
+
+                }
+
+
+                // Confirmar la transacción
+                await transaction.CommitAsync();
+
+                return Ok(new { Message = "Piece of news deleted successfully." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "Error inserting news", Error = ex.Message });
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { Message = "An error occurred deleting the Piece of news...", Error = ex.Message });
             }
         }
-        */
+
 
     }
 }
